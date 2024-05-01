@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: <K8S_DEPLOYMENT_NAME>
+  labels:
+    name: <K8S_DEPLOYMENT_NAME>
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: <K8S_DEPLOYMENT_NAME>
+  template:
+    metadata:
+      labels:
+        service: <K8S_DEPLOYMENT_NAME>
+    spec:
+      containers:
+      - name: app
+        image: <DOCKER_IMAGE_URI>
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /health_check
+            port: <APP_PORT>
+          initialDelaySeconds: 5
+          timeoutSeconds: 2
+        readinessProbe:
+          httpGet:
+            path: "/readiness_check"
+            port: <APP_PORT>
+          initialDelaySeconds: 5
+          timeoutSeconds: 5
+        env:
+        - name: BUILD_VERSION
+          value: <BUILD_VERSION>
+
+        - name: DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: <K8S_APP_SECRET_NAME>
+              key: POSTGRES_USERNAME
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: <K8S_APP_SECRET_NAME>
+              key: POSTGRES_PASSWORD
+
+        - name: APP_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: <K8S_APP_CONFIG>
+              key: APP_PORT
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: <K8S_APP_CONFIG>
+              key: DB_HOST
+        - name: DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: <K8S_APP_CONFIG>
+              key: DB_PORT
+        - name: DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: <K8S_APP_CONFIG>
+              key: DB_NAME
+
+      restartPolicy: Always

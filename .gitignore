@@ -1,0 +1,4 @@
+codebuild-project.json
+eks-deployment-app.yaml
+eks-service-app.yaml
+*.gz

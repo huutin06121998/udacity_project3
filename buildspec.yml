@@ -1,0 +1,14 @@
+version: 0.2
+
+phases:
+  build:
+    commands:
+      - echo Build started on `date`
+      - aws_account_id=`aws sts get-caller-identity --query Account | jq -r . `
+      - docker login -u AWS -p $(aws ecr get-login-password --region ${AWS_REGION}) ${aws_account_id}.dkr.ecr.${AWS_REGION}.amazonaws.com
+      - aws_ecr_repository_uri=`aws ecr describe-repositories --repository-names ${AWS_ECR_REPOSITORY_NAME} | jq -r '.repositories[0].repositoryUri'`
+      - docker build . -f Dockerfile --tag ${aws_ecr_repository_uri}:${CONTAINER_TAG}
+      - docker push ${aws_ecr_repository_uri}:${CONTAINER_TAG}
+  post_build:
+    commands:
+      - echo Build completed on `date`
