@@ -1,5 +1,5 @@
 {
-    "name": "<PROJECT_NAME>",
+    "name": "aws-dockerbuild-coworkingspace",
     "source": {
         "type": "GITHUB",
         "location": "https://github.com/huutin06121998/udacity_project3.git",
@@ -31,7 +31,7 @@
             {
                 "name": "AWS_ECR_REPOSITORY_NAME", 
                 "type": "PLAINTEXT", 
-                "value": "<AWS_ECR_REPOSITORY_NAME>"
+                "value": "udacity-project3-eks"
             },
             {
                 "name": "CONTAINER_TAG", 
