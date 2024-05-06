@@ -23,7 +23,7 @@ export AWS_ECR_REPO_NAME=udacity-project3-eks
 export ROLE_CODEBUILD=aws-codebuild-ecr-push
 export ROLE_CODEBUILD_POLICY=aws-codebuild-ecr-push-policy
 export CODEBUILD_PROJECT_NAME=aws-dockerbuild-coworkingspace
-export CODEBUILD_GITHUB_REPO_URL="https://github.com/cherkavi/udacity-aws-devops-eks"
+export CODEBUILD_GITHUB_REPO_URL="https://github.com/huutin06121998/udacity_project3.git"
 export AWS_S3_CODEBUILD_LOGS="${CODEBUILD_PROJECT_NAME}-s3-logs2"
 
 export ROLE_EKS_CLUSTER=aws-eks-cluster
@@ -43,7 +43,7 @@ export BUILD_VERSION=1.0.5
 [init variables](#create-aws-infrastructure)
 *create*
 ```sh
-aws ecr create-repository  --repository-name $AWS_ECR_REPO_NAME
+aws ecr create-repository  --repository-name $AWS_ECR_REPO_NAME --cluster default --region us-east-1
 ```
 *check*
 ```sh
@@ -106,10 +106,10 @@ echo $ROLE_CODEBUILD_IAM
 
 # create codebuild-project.json document from template 
 sed "s|<GITHUB_REPO_URL>|$CODEBUILD_GITHUB_REPO_URL|" codebuild-project-template.json > codebuild-project.json
-sed --in-place "s|<AWS_ROLE_IAM>|$ROLE_CODEBUILD_IAM|" codebuild-project.json
-sed --in-place "s|<PROJECT_NAME>|$CODEBUILD_PROJECT_NAME|" codebuild-project.json
-sed --in-place "s|<AWS_ECR_REPOSITORY_NAME>|$AWS_ECR_REPO_NAME|" codebuild-project.json
-sed --in-place "s|<AWS_S3_CODEBUILD_LOGS>|$AWS_S3_CODEBUILD_LOGS|" codebuild-project.json
+sed -in-place "s|<AWS_ROLE_IAM>|$ROLE_CODEBUILD_IAM|" codebuild-project.json
+sed -in-place "s|<PROJECT_NAME>|$CODEBUILD_PROJECT_NAME|" codebuild-project.json
+sed -in-place "s|<AWS_ECR_REPOSITORY_NAME>|$AWS_ECR_REPO_NAME|" codebuild-project.json
+sed -in-place "s|<AWS_S3_CODEBUILD_LOGS>|$AWS_S3_CODEBUILD_LOGS|" codebuild-project.json
 
 aws codebuild create-project --cli-input-json file://codebuild-project.json
 ```
