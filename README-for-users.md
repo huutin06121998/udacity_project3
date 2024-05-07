@@ -37,6 +37,8 @@ export K8S_APP_SECRET_NAME=udacity-db-credentials
 export K8S_APP_CONFIG=udacity-project3-config
 export K8S_DEPLOYMENT_NAME=udacity_project3
 export BUILD_VERSION=1.0.5
+export CLUSTER_NAME=eks-udacity-pr3
+export AWS_REGION=us-east-1
 ```
 
 #### ECR: Elastic Container Registry
@@ -137,6 +139,9 @@ for POLICY_NAME in AmazonEKSClusterPolicy; do
     echo "attach to role:"$POLICY_ARN
     aws iam attach-role-policy --role-name $ROLE_EKS_CLUSTER --policy-arn $POLICY_ARN
 done
+
+OR: aws iam attach-role-policy --role-name $ROLE_EKS_CLUSTER --policy-arn $(aws iam list-policies --query "Policies[?PolicyName=='$POLICY_NAME'].Arn" --output text)
+
 ```
 *role for cluster check*
 ```sh
@@ -150,6 +155,12 @@ for POLICY_NAME in `aws iam list-attached-role-policies --role-name $ROLE_EKS_CL
     echo "detach policy: $POLICY_NAME"
     aws iam detach-role-policy --role-name $ROLE_EKS_CLUSTER --policy-arn $POLICY_NAME
 done
+
+OR: for POLICY_NAME in AmazonEKSWorkerNodePolicy AmazonEC2ContainerRegistryReadOnly AmazonEKS_CNI_Policy AmazonEMRReadOnlyAccessPolicy_v2 AmazonEBSCSIDriverPolicy; do
+    POLICY_ARN=$(aws iam list-policies --query "Policies[?PolicyName=='$POLICY_NAME'].Arn" --output text)
+    aws iam attach-role-policy --role-name $ROLE_EKS_NODEGROUP --policy-arn $POLICY_ARN
+done
+
 aws iam delete-role --role-name $ROLE_EKS_CLUSTER
 ```
 
@@ -189,7 +200,9 @@ x-www-browser https://${AWS_REGION}.console.aws.amazon.com/eks
 
 echo "add EKS.NodeGroup with role: ${ROLE_EKS_NODEGROUP}"
 CLUSTER_NAME=`aws eks list-clusters | jq -r .clusters[] | head -n 1`
-x-www-browser https://${AWS_REGION}.console.aws.amazon.com/eks/home?region=${AWS_REGION}#/clusters/${CLUSTER_NAME}/add-node-group 
+x-www-browser https://${AWS_REGION}.console.aws.amazon.com/eks/home?region=${AWS_REGION}#/clusters/${CLUSTER_NAME}/add-node-group
+
+Or: CLUSTER_NAME=$(aws eks list-clusters --query "clusters[0]" --output text)
 
 # check cluster
 aws eks describe-cluster --name $CLUSTER_NAME --query "cluster.identity.oidc.issuer" 
